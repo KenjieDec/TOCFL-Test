@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Listening Mock Test TOCFL</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/KenjieDec/EltGL/main/hihihiha.png">
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    body {
+      background-color: #f3f4f6;
+      margin: 0;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    div.disabled {
+      color: #9ca3af;
+      pointer-events: none;
+      background: #f9fafb;
+    }
+    ::-webkit-file-upload-button {
+      display: none;
+    }
+    .base {
+      background: #f8fafc;
+      width: 100vw;
+      height: 100vh;
+      padding: 3rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.25rem;
+      color: #6b7280;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 600px;
+    }
+    .error {
+      color: #dc2626;
+      margin-bottom: 1.5rem;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+    .upload-container {
+      max-width: 32rem;
+      width: 100%;
+      background: white;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), inset 0 -4px 0 -1px rgba(0, 0, 0, 0.15);
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #374151;
+    }
+    input[type="file"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px dashed #d1d5db;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      background: #f9fafb;
+      transition: border-color 0.2s;
+      text-align: center;
+    }
+    input[type="file"]:hover {
+      border-color: #3b82f6;
+    }
+    .dropdown-container {
+      position: relative;
+      width: 105%;
+      margin-bottom: 1.5rem;
+    }
+    .dropdown-button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      color: #374151;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .dropdown-button:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+      margin-top: 0.25rem;
+      max-height: 300px;
+      overflow-y: auto;
+      opacity: 0;
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      scroll-behavior: smooth;
+    }
+    .dropdown-menu::-webkit-scrollbar {
+      display: none;
+    }
+    .dropdown-menu.show {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: #374151;
+      position: relative;
+    }
+    .dropdown-item:hover {
+      background: #f3f4f6;
+    }
+    .dropdown-item input {
+      margin-right: 0.75rem;
+    }
+    .dropdown-item.disabled {
+      color: #9ca3af;
+      cursor: not-allowed;
+      background: #f9fafb;
+    }
+    .tooltip {
+      position: absolute;
+      background: #1f2937;
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      white-space: normal;
+      width: 200px;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 0.5rem;
+      display: none;
+      z-index: 20;
+    }
+    .dropdown-item:hover .tooltip {
+      display: block;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    button:hover:not(:disabled) {
+      background-color: #2563eb;
+    }
+    button:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+    .proceed-button {
+      margin-top: 1rem;
+      width: 105%;
+    }
+    .progress-container {
+      width: 100%;
+      margin: 1rem auto;
+      text-align: center;
+      position: absolute;
+      bottom: 15em;
+    }
+    .progress-bar {
+      width: 100%;
+      background-color: #e5e7eb;
+      height: 2rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .progress-fill {
+      background-color: #3b82f6;
+      height: 100%;
+      transition: width 0.2s;
+    }
+    .options-container {
+      position: absolute;
+      bottom: 2rem;
+      left: 2rem;
+      max-width: 40%;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-family: SimSun;
+    }
+    .option input {
+      margin-right: 0.75rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+    .option.disabled {
+      cursor: not-allowed;
+    }
+    .correct-answer {
+      background-color: #d1fae5;
+      border: 1px solid #10b981;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+    }
+    .wrong {
+      background-color: #fad1d1;
+      border: 1px solid #b91010;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+    }
+    .faded {
+      opacity: 0.5;
+    }
+    .done-button {
+      position: absolute;
+      bottom: 2rem;
+      right: 2rem;
+    }
+    .previous-button {
+      position: absolute;
+      bottom: 2rem;
+      right: 10rem;
+    }
+    .toggle-button {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+    }
+    .pause-button {
+      position: absolute;
+      top: 2rem;
+      right: 15rem;
+    }
+    .test-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    .notification {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background-color: #3b82f6;
+      color: white;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      z-index: 1000;
+      max-width: 300px;
+      font-size: 1rem;
+    }
+    .notification.show {
+      opacity: 1;
+    }
+    .page-input-container {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .page-input-label {
+      font-size: 1rem;
+      color: #374151;
+      font-weight: 600;
+    }
+    .page-input {
+      width: 60px;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .page-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    .page-input::placeholder {
+      color: #9ca3af;
+    }
+    .history-dropdown-container {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1000;
+      width: 300px;
+    }
+    .dropdown-button.history {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      color: #374151;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .dropdown-button.history:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .dropdown-menu.history {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+      margin-top: 0.25rem;
+      max-height: 200px;
+      overflow-y: auto;
+      opacity: 0;
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .dropdown-menu.history.show {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+    .dropdown-item.history {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: #374151;
+    }
+    .dropdown-item.history:hover {
+      background: #f3f4f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="history-dropdown-container">
+    <button class="dropdown-button history" id="historyDropdown">
+      Select Test History
+    </button>
+    <div class="dropdown-menu history" id="historyDropdownMenu"></div>
+  </div>
+  <div class="base"></div>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+
+    const rawGHub = "https://raw.githubusercontent.com/KenjieDec/TOCFL-Test/refs/heads/main/"
+    const s2t = fetch(`${rawGHub}STCharacters.json`).then(res => res.json());
+    const s2t2 = fetch(`${rawGHub}STCharacters2.json`).then(res => res.json());
+    const s2tPhrases = fetch(`${rawGHub}STPhrases.json`).then(res => res.json());
+    const charState = fetch(`${rawGHub}CharacterState.json`).then(res => res.json());
+
+    const specialChars = {
+      "只": "隻",
+      "喂": "餵",
+      "面": "麵",
+      "发": "髮",
+      "干": "乾"
+    };
+
+    async function T2S() {
+      const s2tData = await s2t;
+      const t2s = {};
+      for (let simp in s2tData) {
+        const trads = s2tData[simp].split(" ");
+        trads.forEach(trad => {
+          t2s[trad] = t2s[trad] ? t2s[trad] + " " + simp : simp;
+        });
+      }
+      return t2s;
+    }
+
+    async function T2S2() {
+      const s2tData = await s2t2;
+      const t2s = {};
+      for (let simp in s2tData) {
+        const trads = s2tData[simp].split(" ");
+        trads.forEach(trad => {
+          t2s[trad] = t2s[trad] ? t2s[trad] + " " + simp : simp;
+        });
+      }
+      return t2s;
+    }
+
+    async function T2SPhrases() {
+      const phrases = await s2tPhrases;
+      const t2sPhrases = {};
+      for (let simp in phrases) {
+        const trad = phrases[simp];
+        t2sPhrases[trad] = simp;
+      }
+      return t2sPhrases;
+    }
+
+    function special(char, beforeText, afterText) {
+      let prev, after, last2;
+      switch (char) {
+        case "隻":
+          prev = charState[beforeText.join("")];
+          after = charState[afterText.join("")];
+          if (prev) prev = prev.split(";").slice(-1)[0];
+          if (after) after = after.split(";")[0];
+          if (prev && prev.split(",")[1] == "m") return "只";
+          if (after && after.split(",")[1] == "n") return "只";
+          return "隻";
+        case "餵":
+          after = charState[afterText.join("")];
+          if (after) after = after.split(";")[0];
+          if (after && after.split(",")[1] == "n") return "喂";
+          return "餵";
+        case "麵":
+          prev = charState[beforeText.join("")];
+          if (prev) prev = prev.split(";").slice(-1)[0];
+          if (prev && prev.split(",")[1] == "v") return "面";
+          return "麵";
+        case "髮":
+          last2 = beforeText.join("").slice(-2);
+          if (last2.includes("理") || last2.includes("头")) return "发";
+          return "髮";
+        case "乾":
+          last2 = beforeText.join("").slice(-2);
+          if (last2.includes("变")) return "干";
+          return "乾";
+      }
+    }
+
+    async function simplify(text) {
+      const t2s = await T2S();
+      const t2s2 = await T2S2();
+      const t2sPhrases = await T2SPhrases();
+      let conv = [""];
+      let splitted = text.split("");
+      if (text in t2sPhrases) {
+        return t2sPhrases[text];
+      }
+      splitted.forEach((char, index) => {
+        if (char == "（" || char == "）") {
+          conv.forEach((word, i) => {
+            conv[i] += char;
+          });
+        } else {
+          let options = [];
+          if (char in t2s2) {
+            options = [t2s2[char]];
+          } else if (char in t2s) {
+            options = t2s[char].split(" ");
+            if (char in specialChars) {
+              options = [special(char, splitted.slice(0, index), splitted.slice(index + 1))];
+            }
+          }
+          let conv2 = [];
+          conv.forEach(prefix => {
+            options.forEach(option => {
+              conv2.push(prefix + option);
+            });
+          });
+          if (conv2.length == 0) {
+            conv.forEach((word, i) => {
+              conv[i] += char;
+            });
+          } else {
+            conv = conv2;
+          }
+        }
+      });
+      return conv.join(" / ");
+    }
+
+    function showNotification(message) {
+      let notification = document.querySelector(".notification");
+      if (!notification) {
+        notification = document.createElement("div");
+        notification.className = "notification";
+        document.body.appendChild(notification);
+      }
+      notification.textContent = message;
+      notification.classList.add("show");
+      setTimeout(() => {
+        notification.classList.remove("show");
+        setTimeout(() => {
+          notification.remove();
+        }, 500);
+      }, 3000);
+    }
+
+    function irtProbability(theta, a, b, c) {
+      const exponent = a * (theta - b);
+      if (exponent > 700) return 1;
+      if (exponent < -700) return c;
+      return c + ((1 - c) / (1 + Math.exp(-exponent)));
+    }
+
+    function itemInformation(theta, a, b, c) {
+      const pTheta = irtProbability(theta, a, b, c);
+      const q = 1 - pTheta;
+      return (a ** 2) * (Math.pow(pTheta - c, 2) / Math.pow(1 - c, 2)) * (q / pTheta);
+    }
+
+    function getTheta(responses, items) {
+      let theta = 0;
+      for (let i = 0; i < 50; i++) {
+        let score = 0;
+        let fishInfo = 0;
+        responses.forEach((response, i) => {
+          const item = items[i];
+          const p = irtProbability(theta, item.a, item.b, item.c);
+          score += (response - p) * item.a;
+          fishInfo += itemInformation(theta, item.a, item.b, item.c);
+        });
+        if (fishInfo < 0.0001) return Math.max(-4, Math.min(4, theta));
+        theta += (score / fishInfo)/(responses.length < 10 ? 2 : 1);
+        theta = Math.max(-4, Math.min(4, theta));
+        if (Math.abs(score / fishInfo) < 0.001) break;
+      }
+      return theta;
+    }
+
+    function standardError(theta, items) {
+      let info = 0;
+      items.forEach(item => {
+        info += itemInformation(theta, item.a, item.b, item.c);
+      });
+      return info > 0 ? 1 / Math.sqrt(info) : Infinity;
+    }
+
+    function selectNextItem(itemBank, administeredItems, theta) {
+      let maxInfo = -Infinity;
+      let nextItem = null;
+      itemBank.forEach(item => {
+        if (!administeredItems.includes(item.id)) {
+          const info = itemInformation(theta, item.a, item.b, item.c);
+          const difficultyMatch = Math.abs(item.b - theta);
+          
+          if (info > maxInfo && (difficultyMatch < 1.0 || item.b > 1.5)) {
+            maxInfo = info;
+            nextItem = item;
+          }
+        }
+      });
+
+      if (!nextItem) {
+        itemBank.forEach(item => {
+          if (!administeredItems.includes(item.id) && (!nextItem || item.b > nextItem.b)) {
+            nextItem = item;
+          }
+        });
+      }
+      return nextItem;
+    }
+
+    let state = {
+      completed: false,
+      questions: [],
+      itemBank: [],
+      totalQuestions: 0,
+      currentQuestionIndex: 0,
+      currentSubQuestionIndex: 0,
+      currentSubQuestionAudioIndex: 0,
+      currentAudioFile: null,
+      selectedAnswer: null,
+      audioProgress: 0,
+      answerTimer: 30,
+      isAudioPlaying: false,
+      isAnswerPhase: false,
+      isTransitioning: false,
+      isShowingAnswer: false,
+      score: 0,
+      audio: null,
+      questionOptions: [],
+      questionsSimplified: [],
+      questionsTraditionalized: [],
+      error: null,
+      xlsxFile: null,
+      irtFile: null,
+      pdfFiles: [],
+      mp3Files: [],
+      isDataLoaded: false,
+      showAnswer: true,
+      randomizeOptions: false,
+      randomizeQuestions: false,
+      obscureOptions: true,
+      isSimplified: false,
+      simplifiedPending: false,
+      showProceedButton: false,
+      noWaitingTime: true,
+      allowPrevious: false,
+      allowPause: true,
+      moveableAudio: true,
+      isPaused: false,
+      history: [],
+      loadFromHistory: false,
+      useCAT: false,
+      cat: {
+        theta: 0,
+        responses: [],
+        administeredItems: [],
+        givenQuestions: [],
+        se: Infinity,
+      },
+    };
+
+    const defaultOptions = [
+      { letter: "A", text: "Option A", originalText: "Option A" },
+      { letter: "B", text: "Option B", originalText: "Option B" },
+      { letter: "C", text: "Option C", originalText: "Option C" },
+      { letter: "D", text: "Option D", originalText: "Option D" },
+    ];
+
+    function shuffleArray(array, randomMath = Math.random()) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(randomMath * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    function toggleChinese() {
+      state.simplifiedPending = !state.isSimplified;
+      showNotification("Text will switch to " + (state.simplifiedPending ? "Simplified" : "Traditional") + " Chinese for the next question.");
+      render();
+    }
+
+    function togglePause() {
+      if (!state.allowPause || !state.isAudioPlaying) return;
+      if (state.isPaused) {
+        state.audio.play();
+        state.isPaused = false;
+      } else {
+        state.audio.pause();
+        state.isPaused = true;
+      }
+      render();
+    }
+
+    function handleAudioSeek(event) {
+      if (!state.moveableAudio || !state.isAudioPlaying || state.isPaused || state.isAnswerPhase) return;
+      const progressBar = event.currentTarget;
+      const rect = progressBar.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const width = rect.width;
+      const seekTime = (clickX / width) * state.audio.duration;
+      state.audio.currentTime = seekTime;
+      state.audioProgress = seekTime;
+      render();
+    }
+
+    function goToPrevious() {
+      if (!state.allowPrevious) {
+        showNotification("You cheat.");
+        return;
+      }
+      
+      goToPage(getGlobalQuestionNumber() - 1);
+    }
+    
+    function goToPage(pageNumber) {
+      if (!state.allowPrevious || state.isTransitioning || state.useCAT) return;
+
+      const totalQuestions = state.totalQuestions;
+      const page = parseInt(pageNumber, 10);
+
+      if (isNaN(page) || page < 1 || page > totalQuestions) {
+        showNotification(`PLEASE enter a valid question number between 1 and ${totalQuestions}.`);
+        return;
+      }
+
+      state.isTransitioning = true;
+
+      let targetQuestionIndex = 0;
+      let targetSubQuestionIndex = 0;
+      let currentGlobalQuestion = 0;
+
+      for (let i = 0; i < state.questions.length; i++) {
+        const question = state.questions[i];
+        const subQuestionCount = question.answers.length > 1 ? question.answers.length - 1 : 1;
+        for (let j = 0; j < subQuestionCount; j++) {
+          currentGlobalQuestion++;
+          if (currentGlobalQuestion == page) {
+            targetQuestionIndex = i;
+            targetSubQuestionIndex = j;
+            break;
+          }
+        }
+        if (currentGlobalQuestion >= page) break;
+      }
+
+      state.currentQuestionIndex = targetQuestionIndex;
+      state.currentSubQuestionIndex = targetSubQuestionIndex;
+      state.currentSubQuestionAudioIndex = targetSubQuestionIndex + 1;
+      state.questionOptions = state.randomizeOptions
+        ? shuffleArray(state.questions[targetQuestionIndex].options[targetSubQuestionIndex] || defaultOptions)
+        : state.questions[targetQuestionIndex].options[targetSubQuestionIndex] || defaultOptions;
+      state.selectedAnswer = null;
+      state.isAnswerPhase = false;
+      state.audioProgress = 0;
+      state.isAudioPlaying = false;
+      state.isPaused = false;
+
+      if (state.audio) {
+        state.audio.pause();
+        URL.revokeObjectURL(state.audio.src);
+      }
+
+      playNextAudio(state.questions[targetQuestionIndex], state.questions[targetQuestionIndex].answers.length > 1 ? state.currentSubQuestionAudioIndex : 0);
+
+      state.history = state.history.filter(h => 
+        getGlobalQuestionNumber(h.currentQuestionIndex, h.currentSubQuestionIndex) < page
+      );
+      state.history.push({
+        currentQuestionIndex: targetQuestionIndex,
+        currentSubQuestionIndex: targetSubQuestionIndex,
+        questionOptions: [...state.questionOptions],
+        selectedAnswer: state.selectedAnswer,
+      });
+      state.isSimplified = state.simplifiedPending;
+      state.questions = state.isSimplified ? state.questionsSimplified : state.questionsTraditionalized;
+
+      state.isTransitioning = false;
+      render();
+    }
+
+    async function saveTestHistory() {
+      const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+      const xlsxArrayBuffer = await state.xlsxFile.arrayBuffer();
+      const irtArrayBuffer = state.irtFile ? await state.irtFile.arrayBuffer() : null;
+      const config = {
+        questions: state.questions,
+        itemBank: state.itemBank,
+        totalQuestions: state.totalQuestions,
+        questionsTraditionalized: state.questionsTraditionalized,
+        questionsSimplified: state.questionsSimplified,
+        isDataLoaded: state.isDataLoaded,
+        showProceedButton: true,
+        useCAT: state.useCAT,
+      };
+      const configKey = JSON.stringify(config);
+      const existingIndex = history.findIndex(item => JSON.stringify(item) == configKey);
+      if (existingIndex !== -1) {
+        history.splice(existingIndex, 1);
+      }
+      history.unshift(config);
+      if (history.length > 5) {
+        history.pop();
+      }
+      localStorage.setItem('testHistory', JSON.stringify(history));
+      renderHistoryDropdown();
+    }
+
+    async function loadTestHistory(index) {
+      const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+      if (index < 0 || index >= history.length) return;
+      const config = history[index];
+      Object.assign(state, config);
+      
+      if (state.useCAT) {
+        let item = document.querySelector('.dropdown-item[data-option="allowPrevious"]');
+        let checkbox = item.querySelector("input");
+
+        let itemCAT = document.querySelector('.dropdown-item[data-option="useCAT"]');
+        let checkboxCAT = itemCAT.querySelector("input");
+
+        
+        let useCATupload = document.querySelector('input[type="file"][id="irtInput"]');
+        let useCATParent = useCATupload.parentElement
+        state.allowPrevious = false;
+        checkbox.checked = false;
+        checkboxCAT.checked = true;
+
+        item.classList.add("disabled");
+        checkbox.setAttribute("disabled", "");
+
+        itemCAT.classList.remove("disabled")
+        checkboxCAT.removeAttribute("disabled")
+
+        useCATParent.classList.remove("disabled")
+        useCATupload.removeAttribute("disabled", "");
+      }
+      else if (state.allowPrevious) {
+        let item = document.querySelector('.dropdown-item[data-option="useCAT"]');
+        let checkbox = item.querySelector("input");
+
+        let itemAP = document.querySelector('.dropdown-item[data-option="useCAT"]');
+        let checkboxAP = itemAP.querySelector("input");
+
+        
+        let useCATupload = document.querySelector('input[type="file"][id="irtInput"]');
+        let useCATParent = useCATupload.parentElement
+        state.useCAT = false;
+        checkbox.checked = false;
+        checkboxAP.checked = true;
+
+        item.classList.add("disabled");
+        checkbox.setAttribute("disabled", "");
+
+        itemAP.classList.remove("disabled")
+        checkboxAP.removeAttribute("disabled")
+
+        useCATParent.classList.add("disabled")
+        useCATupload.setAttribute("disabled", "");
+      }
+
+      state.loadFromHistory = true;
+      await render();
+    }
+
+    function renderHistoryDropdown() {
+      const dropdownMenu = document.getElementById('historyDropdownMenu');
+      const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+      dropdownMenu.innerHTML = history.length == 0
+        ? '<div class="dropdown-item history">No history available</div>'
+        : history.map((item, index) => `
+            <div class="dropdown-item history" onclick="loadTestHistory(${index})">
+              <strong>Test ${index + 1} (${item.useCAT ? 'CAT' : 'Regular'})</strong><br>
+            </div>
+          `).join('');
+      const dropdownButton = document.getElementById('historyDropdown');
+      dropdownButton.onclick = () => {
+        dropdownMenu.classList.toggle('show');
+      };
+    }
+
+    function render() {
+      const base = document.querySelector(".base");
+      if (!state.isDataLoaded) {
+        renderUploadScreen(base);
+      } else if (state.error) {
+        showNotification(state.error);
+      } else if (state.showProceedButton) {
+        document.querySelector(".proceed-button").disabled = false;
+      } else if (state.completed) {
+        renderCompletionScreen(base);
+      } else {
+        renderTestScreen(base);
+      }
+      renderHistoryDropdown();
+    }
+
+    function renderUploadScreen(root) {
+      root.innerHTML = `
+        <div class="upload-container">
+          ${state.error ? `<p class="error">${state.error}</p>` : ""}
+          <div>
+            <label>Upload Answer File (XLSX)</label>
+            <input type="file" id="xlsxInput" accept=".xlsx">
+          </div>
+          <div ${state.useCAT ? "" : 'class="disabled"'}>
+            <label>Upload IRT CSV File (Required for CAT)</label>
+            <input type="file" id="irtInput" ${state.useCAT ? "" : "disabled"} accept=".csv">
+          </div>
+          <div>
+            <label>Upload Questions Folder (PDFs)</label>
+            <input type="file" id="pdfInput" webkitdirectory mozdirectory>
+          </div>
+          <div>
+            <label>Upload Audio Folder (MP3s)</label>
+            <input type="file" id="mp3Input" webkitdirectory mozdirectory>
+          </div>
+          <div class="dropdown-container">
+            <button class="dropdown-button" id="optionsDropdown">
+              Test Options
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu">
+              <div class="dropdown-item" data-option="useCAT">
+                <input type="checkbox" ${state.useCAT ? "checked" : ""}>
+                <span>Use Computerized Adaptive Testing</span>
+                <span class="tooltip">Enables CAT( Computerized Adaptive Testing ), requires a .csv</span>
+              </div>
+              <div class="dropdown-item" data-option="showAnswer">
+                <input type="checkbox" ${state.showAnswer ? "checked" : ""}>
+                <span>Show Answer After Submission</span>
+                <span class="tooltip">Shows the correct answer after submitting each question.</span>
+              </div>
+              <div class="dropdown-item" data-option="randomizeOptions">
+                <input type="checkbox" ${state.randomizeOptions ? "checked" : ""}>
+                <span>Randomize Options</span>
+                <span class="tooltip">Shuffles options for every question.</span>
+              </div>
+              <div class="dropdown-item" data-option="obscureOptions">
+                <input type="checkbox" ${state.obscureOptions ? "checked" : ""}>
+                <span>Obscure Options</span>
+                <span class="tooltip">Hides option letters (ABCD), showing only the text.</span>
+              </div>
+              <div class="dropdown-item" data-option="noWaitingTime">
+                <input type="checkbox" ${state.noWaitingTime ? "checked" : ""}>
+                <span>No Waiting Time</span>
+                <span class="tooltip">Allows unlimited time to answer each question.</span>
+              </div>
+              <div class="dropdown-item" data-option="allowPrevious">
+                <input type="checkbox" ${state.allowPrevious ? "checked" : ""} ${state.useCAT ? "disabled" : ""}>
+                <span>Allow Previous</span>
+                <span class="tooltip">Allows going to previous question. Disabled in CAT mode.</span>
+              </div>
+              <div class="dropdown-item" data-option="allowPause">
+                <input type="checkbox" ${state.allowPause ? "checked" : ""}>
+                <span>Allow Pause</span>
+                <span class="tooltip">Allow Pause/Resume for Audio.</span>
+              </div>
+              <div class="dropdown-item ${!state.allowPause ? "disabled" : ""}" data-option="moveableAudio">
+                <input type="checkbox" ${state.moveableAudio ? "checked" : ""} ${!state.allowPause ? "disabled" : ""}>
+                <span>Moveable Audio Timeline</span>
+                <span class="tooltip">Allows seeking to specific parts of the audio. Requires Allow Pause.</span>
+              </div>
+            </div>
+          </div>
+          <button class="proceed-button" disabled onclick="proceedToTest()">Start Test</button>
+        </div>
+      `;
+      document.getElementById("xlsxInput")?.addEventListener("change", handleXlsxUpload);
+      document.getElementById("irtInput")?.addEventListener("change", handleIrtUpload);
+      document.getElementById("pdfInput")?.addEventListener("change", handlePdfUpload);
+      document.getElementById("mp3Input")?.addEventListener("change", handleMp3Upload);
+      const dropdownButton = document.getElementById("optionsDropdown");
+      const dropdownMenu = document.getElementById("dropdownMenu");
+      dropdownButton?.addEventListener("click", () => {
+        dropdownMenu.classList.toggle("show");
+      });
+      document.querySelectorAll(".dropdown-item").forEach(item => {
+        item.addEventListener("click", (e) => {
+          const option = item.dataset.option;
+          const input = item.querySelector("input");
+          if (input.disabled) return;
+          input.checked = !input.checked;
+          state[option] = input.checked;
+          if (option == "useCAT") {
+            let item = document.querySelector('.dropdown-item[data-option="allowPrevious"]');
+            let checkbox = item.querySelector("input");
+
+            
+            let useCATupload = document.querySelector('input[type="file"][id="irtInput"]');
+            let useCATParent = useCATupload.parentElement
+            if (input.checked) {
+              state.allowPrevious = false;
+              checkbox.checked = false;
+              item.classList.add("disabled");
+              checkbox.setAttribute("disabled", "");
+
+              useCATParent.classList.remove("disabled")
+              useCATupload.removeAttribute("disabled", "");
+            } else {
+              item.classList.remove("disabled");
+              checkbox.removeAttribute("disabled");
+
+              useCATParent.classList.add("disabled")
+              useCATupload.setAttribute("disabled", "");
+            }
+          }
+          else if (option == "allowPrevious") {
+            let item = document.querySelector('.dropdown-item[data-option="useCAT"]');
+            let checkbox = item.querySelector("input");
+
+            
+            let useCATupload = document.querySelector('input[type="file"][id="irtInput"]');
+            let useCATParent = useCATupload.parentElement
+            if (input.checked) {
+              state.useCAT = false;
+              checkbox.checked = false;
+              item.classList.add("disabled");
+              checkbox.setAttribute("disabled", "");
+
+              useCATParent.classList.add("disabled")
+              useCATupload.setAttribute("disabled", "");
+            } else {
+              item.classList.remove("disabled");
+              checkbox.removeAttribute("disabled");
+            }
+          }
+          if (option == "allowPause") {
+            let moveableItem = document.querySelector('.dropdown-item[data-option="moveableAudio"]');
+            let moveableCheckbox = moveableItem.querySelector("input");
+            if (!input.checked) {
+              state.moveableAudio = false;
+              moveableCheckbox.checked = false;
+              moveableItem.classList.add("disabled");
+              moveableCheckbox.setAttribute("disabled", "");
+            } else {
+              moveableItem.classList.remove("disabled");
+              moveableCheckbox.removeAttribute("disabled");
+            }
+          }
+        });
+      });
+      document.addEventListener("click", (e) => {
+        if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.remove("show");
+        }
+      });
+    }
+
+    function renderCompletionScreen(root) {
+      if (state.audio) {
+        state.audio.pause();
+        URL.revokeObjectURL(state.audio.src);
+      }
+      root.innerHTML = `
+        <div class="upload-container">
+          <h1>Test Completed</h1>
+          <p>Your score: ${state.score} / ${state.useCAT ? state.cat.givenQuestions.length : state.questions.length}</p>
+          ${state.useCAT ? `
+            <p>Estimated Ability (θ): ${state.cat.theta.toFixed(2)}</p>
+            <p>Standard Error: ${state.cat.se.toFixed(2)}</p>
+          ` : ""}
+        </div>
+      `;
+    }
+
+    function getGlobalQuestionNumber() {
+      if (state.useCAT) {
+        return state.cat.givenQuestions.length;
+      } else {
+        let globalNumber = 0;
+        for (let i = 0; i < state.currentQuestionIndex; i++) {
+          const answers = state.questions[i].answers;
+          globalNumber += answers.length > 1 ? answers.length - 1 : 1;
+        }
+        globalNumber += state.currentSubQuestionIndex + 1;
+        return globalNumber;
+      }
+    }
+
+    function getTotalQuestions() {
+      if (state.useCAT) {
+        return Math.min(50, state.itemBank.length);
+      } else {
+        state.totalQuestions = state.questions.reduce((acc, item) => {
+          if (item.answers.length == 3) return acc + 2;
+          if (item.answers.length == 4) return acc + 3;
+          return acc + 1;
+        }, 0);
+        return state.totalQuestions
+      }
+    }
+
+    function renderTestScreen(root) {
+      const questionIndex = state.currentQuestionIndex;
+      const subQuestionIndex = state.currentSubQuestionIndex;
+      const currentQuestion = state.questions[questionIndex];
+      const correctAnswer = currentQuestion.answers.length > 1 ? currentQuestion.answers[state.currentSubQuestionAudioIndex] : currentQuestion.answers[0];
+      const globalQuestionNumber = getGlobalQuestionNumber();
+      const totalQuestions = getTotalQuestions();
+
+      if (!state.questionOptions || state.questionOptions.length == 0) {
+        state.questionOptions = state.randomizeOptions
+          ? shuffleArray(currentQuestion.options[subQuestionIndex] || defaultOptions)
+          : currentQuestion.options[subQuestionIndex] || defaultOptions;
+      }
+
+      let html = `
+        <div class="test-container">
+          <h1>Question ${globalQuestionNumber} of ${totalQuestions}</h1>
+          <button class="toggle-button" onclick="toggleChinese()">
+            ${state.isSimplified ? "Switch to Traditional" : "Switch to Simplified"}
+          </button>
+          ${state.allowPause ? `
+            <button class="pause-button" onclick="togglePause()">
+              ${state.isPaused ? "Play" : "Pause"}
+            </button>
+          ` : ""}
+          <div class="progress-container">
+      `;
+      if (state.isAudioPlaying && state.currentAudioFile) {
+        html += `
+          <p>Playing Audio: ${state.currentAudioFile}</p>
+          <div class="progress-bar" ${state.moveableAudio && !state.isPaused && !state.isAnswerPhase ? 'onclick="handleAudioSeek(event)"' : ""}>
+            <div class="progress-fill" style="width: ${(state.audioProgress / (state.audio?.duration || 1)) * 100}%"></div>
+          </div>
+        `;
+      }
+      if (state.isAnswerPhase && !state.noWaitingTime) {
+        html += `
+          <p>Time to answer: ${state.answerTimer} seconds</p>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${((30 - state.answerTimer) / 30) * 100}%"></div>
+          </div>
+        `;
+      }
+      html += `
+          </div>
+          <div class="options-container">
+      `;
+      state.questionOptions.forEach(option => {
+        html += `
+          <label class="option ${state.isShowingAnswer && option.letter == correctAnswer ? "correct-answer" : ""} ${state.isShowingAnswer && option.letter == state.selectedAnswer && state.selectedAnswer !== correctAnswer ? "wrong" : ""} ${state.isShowingAnswer && option.letter !== correctAnswer ? "faded" : ""} ${state.isTransitioning || state.isShowingAnswer ? "disabled" : ""}">
+            <input
+              type="radio"
+              name="answer"
+              value="${option.letter}"
+              ${state.selectedAnswer == option.letter ? "checked" : ""}
+              ${state.isTransitioning || state.isShowingAnswer ? "disabled" : ""}
+            >
+            <span class="optionText">${state.obscureOptions ? "" : `${option.letter}.`} ${option.text}</span>
+          </label>
+        `;
+      });
+      html += `
+          </div>
+          ${state.allowPrevious && state.history.length > 0 ? `
+            <button class="previous-button" onclick="goToPrevious()">Previous</button>
+          ` : ""}
+          ${state.allowPrevious ? `
+            <div class="page-input-container">
+              <label class="page-input-label">Go to Question:</label>
+              <input type="number" class="page-input" placeholder="1-${totalQuestions}" min="1" max="${totalQuestions}" onkeydown="if(event.key == 'Enter') goToPage(this.value)">
+            </div>
+          ` : ""}
+          <button class="done-button" ${state.isTransitioning || state.isShowingAnswer ? "disabled" : ""}>Done</button>
+        </div>
+      `;
+      root.innerHTML = html;
+
+      document.querySelectorAll(".optionText").forEach(item => {
+        item.addEventListener("click", () => {
+          if (!state.isTransitioning && !state.isShowingAnswer) {
+            state.selectedAnswer = item.parentElement.querySelector('input').value;
+          }
+        });
+      });
+      document.querySelectorAll('input[name="answer"]').forEach(input => {
+        input.addEventListener("change", () => {
+          if (!state.isTransitioning && !state.isShowingAnswer) {
+            state.selectedAnswer = input.value;
+          }
+        });
+      });
+      document.querySelector(".done-button").addEventListener("click", handleNextQuestion);
+    }
+
+    function handleXlsxUpload(event) {
+      const file = event.target.files[0];
+      if (file && file.name.endsWith(".xlsx")) {
+        state.xlsxFile = file;
+        state.error = null;
+        loadData();
+      } else {
+        state.error = "Please upload a valid XLSX file.";
+        render();
+      }
+    }
+
+    function handleIrtUpload(event) {
+      const file = event.target.files[0];
+      if (file && file.name.endsWith(".csv")) {
+        state.irtFile = file;
+        state.error = null;
+        loadData();
+      } else {
+        state.error = "Please upload a valid CSV file.";
+        render();
+      }
+    }
+
+    function handlePdfUpload(event) {
+      const files = Array.from(event.target.files).filter(file => file.name.endsWith(".pdf"));
+      if (files.length > 0) {
+        state.pdfFiles = files;
+        state.error = null;
+        loadData();
+      } else {
+        state.error = "Please upload at least one valid PDF file.";
+        render();
+      }
+    }
+
+    function handleMp3Upload(event) {
+      const files = Array.from(event.target.files).filter(file => file.name.endsWith(".mp3"));
+      if (files.length > 0) {
+        state.mp3Files = files;
+        state.error = null;
+        loadData();
+      } else {
+        state.error = "Please upload at least one valid MP3 file.";
+        render();
+      }
+    }
+
+    async function loadData() {
+      if (!state.xlsxFile || state.pdfFiles.length == 0 || state.mp3Files.length == 0) return;
+      if (state.useCAT && !state.irtFile) {
+        state.error = "You enabled CAT, please upload a .csv";
+        render();
+        return;
+      }
+
+      try {
+        if (state.irtFile) {
+          const irtText = await state.irtFile.text();
+          const irtRows = irtText.split('\n').map(row => row.split(','));
+          const itemBank = irtRows.slice(1).filter(row => row.length >= 4).map(row => ({
+            id: row[0],
+            a: parseFloat(row[2]),
+            b: parseFloat(row[1]),
+            c: parseFloat(row[3]),
+          }));
+          state.itemBank = itemBank;
+        }
+
+        const xlsxArrayBuffer = await state.xlsxFile.arrayBuffer();
+        const workbook = XLSX.read(xlsxArrayBuffer, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, {
+          header: ["type", "fileName", "answer", "audioFile"],
+          skipHeader: true,
+          range: 1,
+        });
+
+        const questionGroups = [];
+        let currentGroup = null;
+        for (const row of rows) {
+          if (row.fileName) {
+            if (currentGroup) questionGroups.push(currentGroup);
+            currentGroup = {
+              mainFile: row.fileName,
+              audioFiles: [row.audioFile],
+              answers: [row.answer || null],
+              options: [],
+            };
+          } else {
+            currentGroup.audioFiles.push(row.audioFile);
+            currentGroup.answers.push(row.answer);
+          }
+        }
+        if (currentGroup) questionGroups.push(currentGroup);
+
+        for (const group of questionGroups) {
+          for (const audioFile of group.audioFiles) {
+            if (!state.mp3Files.find(file => file.name == `${audioFile}.mp3`)) {
+              throw new Error(`Missing MP3 file: ${audioFile}.mp3`);
+            }
+          }
+          if (state.useCAT && state.itemBank.length > 0) {
+            if (!state.itemBank.find(item => item.id == group.mainFile)) {
+              throw new Error(`${group.mainFile} not found in .csv`);
+            }
+          }
+        }
+
+        for (const group of questionGroups) {
+          const pdfFile = state.pdfFiles.find(file => file.name == `${group.mainFile}.pdf`);
+          if (!pdfFile) {
+            console.warn(`No PDF found for ${group.mainFile}.`);
+            group.options = Array(group.answers.length).fill(defaultOptions);
+            continue;
+          }
+
+          try {
+            const pdfArrayBuffer = await pdfFile.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({
+              data: pdfArrayBuffer,
+              disableFontFace: true,
+              verbosity: pdfjsLib.VerbosityLevel.WARNINGS,
+            }).promise;
+            const lastPage = await pdf.getPage(pdf.numPages);
+            const textContent = await lastPage.getTextContent();
+            let text = textContent.items.map(item => item.str).join("");
+
+            if (!text.trim()) {
+              console.warn(`${group.mainFile} is empty.`);
+              const ops = await lastPage.getOperatorList();
+              text = ops.items
+                .filter(op => op.fn == "Tj" || op.fn == "TJ")
+                .map(op => op.args[0])
+                .join("\n");
+            }
+
+            const questionBlocks = text.split(/(?=\d+\.)/).map(part => part.replace(/^\d+\./, ''));
+            const parsedOptions = questionBlocks.map(block => {
+              const lines = JSON.parse(
+                JSON.stringify(block)
+                  .replaceAll("\\n", "")
+                  .replaceAll("（", "\\n（")
+              )
+                .split("\n")
+                .filter(line => line.trim() !== "")
+                .reduce((a, c) => (c.includes("（") && c.includes("）") ? a.push(c) : (a[a.length - 1] += c), a), []);
+              return lines.map(line => {
+                const letter = line.match(/（([A-D])）/)[1];
+                const text = line.replace(/（[A-D]）/, "").trim();
+                return { letter, text, originalText: text };
+              });
+            }).filter(Boolean);
+
+            group.options = parsedOptions.length > 0 ? parsedOptions : Array(group.answers.length).fill(defaultOptions);
+          } catch (error) {
+            console.error(`Error loading ${group.mainFile}.pdf:`, error);
+            group.options = Array(group.answers.length).fill(defaultOptions);
+          }
+        }
+
+        state.questions = questionGroups;
+        if (questionGroups.length > 0) {
+          let convToSimpl = await simplify(JSON.stringify(state.questions));
+          state.questionsTraditionalized = questionGroups;
+          state.questionsSimplified = JSON.parse(convToSimpl);
+          state.isDataLoaded = true;
+          state.showProceedButton = true;
+          showNotification("Data loading done. Click Start Test to begin.");
+        } else {
+          state.error = "No questions loaded from XLSX.";
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        state.error = `Failed to load data. ${error.message}`;
+      }
+      state.totalQuestions = getTotalQuestions();
+      render();
+    }
+
+    function proceedToTest() {
+      if (state.useCAT && !state.itemBank.length > 0) {
+        state.error = "You enabled CAT, please upload a .csv";
+        render();
+        return;
+      }
+      state.showProceedButton = false;
+      state.questions = state.isSimplified ? state.questionsSimplified : state.questionsTraditionalized;
+      if (state.useCAT) {
+        selectNextCATQuestion();
+      } else {
+        selectNextRegularQuestion();
+      }
+      if (!state.loadFromHistory) saveTestHistory();
+      render();
+    }
+
+    function selectNextCATQuestion() {
+      const nextItem = selectNextItem(state.itemBank, state.cat.administeredItems, state.cat.theta);
+      if (!nextItem || state.cat.givenQuestions.length >= 50 || state.cat.se < 0.3) {
+        state.completed = true;
+        render();
+        return;
+      }
+      const question = state.questions.find(q => q.mainFile == nextItem.id);
+      if (!question) {
+        state.error = `No next question found? ${nextItem.id}`;
+        render();
+        return;
+      }
+      const questionIndex = state.questions.indexOf(question);
+      state.currentQuestionIndex = questionIndex;
+      state.currentSubQuestionIndex = 0;
+      state.currentSubQuestionAudioIndex = 1;
+      console.log("here")
+      state.questionOptions = state.randomizeOptions
+        ? shuffleArray(question.options[0] || defaultOptions)
+        : question.options[0] || defaultOptions;
+      state.selectedAnswer = null;
+      state.isAnswerPhase = false;
+      state.audioProgress = 0;
+      state.cat.administeredItems.push(nextItem.id);
+      state.cat.givenQuestions.push({ questionIndex, subQuestionIndex: 0 });
+      playNextAudio(question, 0);
+    }
+
+    function selectNextRegularQuestion() {
+      if (state.currentQuestionIndex >= state.questions.length) {
+        state.completed = true;
+        render();
+        return;
+      }
+
+      const question = state.questions[state.currentQuestionIndex];
+
+      state.currentQuestionIndex++;
+      state.currentSubQuestionIndex = 0;
+      state.currentSubQuestionAudioIndex = 1;
+      state.questionOptions = state.randomizeOptions
+        ? shuffleArray(question.options[0] || defaultOptions)
+        : question.options[0] || defaultOptions;
+      state.selectedAnswer = null;
+      state.isAnswerPhase = false;
+      state.audioProgress = 0;
+
+      playNextAudio(question, 0);
+    }
+
+    function playNextAudio(question, audioIndex) {
+      if (state.audio) {
+        state.audio.pause();
+        URL.revokeObjectURL(state.audio.src);
+      }
+      const audioFile = question.audioFiles[audioIndex];
+      const mp3File = state.mp3Files.find(file => file.name == `${audioFile}.mp3`);
+      if (!mp3File) {
+        console.error(`MP3 file missing: ${audioFile}.mp3`);
+        state.isAudioPlaying = false;
+        state.currentAudioFile = null;
+        state.isAnswerPhase = true;
+        if (!state.noWaitingTime) {
+          state.answerTimer = 30;
+          startAnswerTimer();
+        }
+        render();
+        return;
+      }
+      const audioUrl = URL.createObjectURL(mp3File);
+      const newAudio = new Audio(audioUrl);
+      state.audio = newAudio;
+      state.isAudioPlaying = true;
+      state.currentAudioFile = audioFile;
+      state.isPaused = false;
+
+      newAudio.ontimeupdate = () => {
+        state.audioProgress = newAudio.currentTime;
+        const progressFill = document.querySelector(".progress-fill");
+        if (progressFill) {
+          progressFill.style.width = `${(newAudio.currentTime / newAudio.duration) * 100}%`;
+        }
+      };
+
+      newAudio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+        if (audioIndex < question.audioFiles.length - 1) {
+          state.currentSubQuestionAudioIndex++;
+          playNextAudio(question, audioIndex + 1);
+        } else {
+          state.isAudioPlaying = false;
+          state.isAnswerPhase = true;
+          if (!state.noWaitingTime) {
+            state.answerTimer = 30;
+            startAnswerTimer();
+          }
+        }
+        render();
+      };
+
+      newAudio.play().catch(error => {
+        console.error(`Can't play ${audioFile}:`, error);
+        URL.revokeObjectURL(audioUrl);
+        state.isAudioPlaying = false;
+        state.isAnswerPhase = true;
+        if (!state.noWaitingTime) {
+          state.answerTimer = 30;
+          startAnswerTimer();
+        }
+        render();
+      });
+    }
+
+    let answerTimerInterval = null;
+    function startAnswerTimer() {
+      if (answerTimerInterval) clearInterval(answerTimerInterval);
+      if (state.isAnswerPhase && state.answerTimer > 0 && !state.noWaitingTime) {
+        answerTimerInterval = setInterval(() => {
+          state.answerTimer--;
+          if (state.answerTimer <= 0) {
+            clearInterval(answerTimerInterval);
+            handleNextQuestion();
+          }
+          render();
+        }, 1000);
+      }
+    }
+
+    function handleNextQuestion() {
+      if (state.isTransitioning) return;
+
+      state.isTransitioning = true;
+      state.history.push({
+        currentQuestionIndex: state.currentQuestionIndex,
+        currentSubQuestionIndex: state.currentSubQuestionIndex,
+        questionOptions: [...state.questionOptions],
+        selectedAnswer: state.selectedAnswer,
+      });
+
+      const currentQuestion = state.questions[state.currentQuestionIndex];
+      const correctAnswer = currentQuestion.answers.length > 1 ? currentQuestion.answers[state.currentSubQuestionAudioIndex] : currentQuestion.answers[0];
+      const isCorrect = state.selectedAnswer == correctAnswer && correctAnswer !== null;
+      if (isCorrect) state.score++;
+
+      if (state.useCAT) {
+        const mainFile = currentQuestion.mainFile;
+        const item = state.itemBank.find(i => i.id == mainFile);
+        state.cat.responses.push(isCorrect ? 1 : 0);
+        const administeredItems = state.cat.administeredItems.map(id => state.itemBank.find(i => i.id == id));
+        state.cat.theta = getTheta(state.cat.responses, administeredItems);
+        state.cat.se = standardError(state.cat.theta, administeredItems);
+      }
+
+      if (state.showAnswer) {
+        state.isShowingAnswer = true;
+        render();
+        setTimeout(() => {
+          state.isShowingAnswer = false;
+          proceedToNextQuestion();
+        }, 2000);
+      } else {
+        proceedToNextQuestion();
+      }
+    }
+
+    function proceedToNextQuestion() {
+      setTimeout(() => {
+        if (state.simplifiedPending !== state.isSimplified) {
+          state.isSimplified = state.simplifiedPending;
+          state.questions = state.isSimplified ? state.questionsSimplified : state.questionsTraditionalized;
+        }
+        const currentQuestion = state.questions[state.currentQuestionIndex];
+        if (state.currentSubQuestionIndex < currentQuestion.answers.length - 2) {
+          state.currentSubQuestionIndex++;
+          state.currentSubQuestionAudioIndex++;
+          state.questionOptions = state.randomizeOptions
+            ? shuffleArray(currentQuestion.options[state.currentSubQuestionIndex] || defaultOptions)
+            : currentQuestion.options[state.currentSubQuestionIndex] || defaultOptions;
+          state.selectedAnswer = null;
+          state.isAnswerPhase = false;
+          state.audioProgress = 0;
+          playNextAudio(currentQuestion, state.currentSubQuestionAudioIndex);
+          state.cat.administeredItems.push(state.cat.administeredItems[state.cat.administeredItems.length - 1]);
+          state.cat.givenQuestions.push({
+            questionIndex: state.currentQuestionIndex,
+            subQuestionIndex: state.currentSubQuestionIndex,
+          });
+        } else if (state.useCAT) {
+          selectNextCATQuestion();
+        } else {
+          selectNextRegularQuestion();
+        }
+        state.isTransitioning = false;
+        render();
+      }, 1000);
+    }
+
+    document.addEventListener('click', (e) => {
+      const dropdownButton = document.getElementById('optionsDropdown');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      const historyDropdown = document.getElementById('historyDropdown');
+      const historyDropdownMenu = document.getElementById('historyDropdownMenu');
+      if (dropdownButton && dropdownMenu && !dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove('show');
+      }
+      if (historyDropdown && historyDropdownMenu && !historyDropdown.contains(e.target) && !historyDropdownMenu.contains(e.target)) {
+        historyDropdownMenu.classList.remove('show');
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
