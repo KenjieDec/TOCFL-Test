@@ -41,13 +41,7 @@
       color: #1f2937;
       margin-bottom: 1rem;
       text-align: center;
-    }
-    h2 {
-      font-size: 1.25rem;
-      color: #6b7280;
-      margin-bottom: 2rem;
-      text-align: center;
-      max-width: 600px;
+      user-select: none;
     }
     .error {
       color: #dc2626;
@@ -478,16 +472,17 @@
       const t2s = await T2S();
       const t2s2 = await T2S2();
       const t2sPhrases = await T2SPhrases();
-      let conv = [""];
-      let splitted = text.split("");
       if (text in t2sPhrases) {
         return t2sPhrases[text];
       }
+      
+      let conv = [""];
+      let splitted = text.split("");
       splitted.forEach((char, index) => {
+        let conv2 = [];
+
         if (char == "（" || char == "）") {
-          conv.forEach((word, i) => {
-            conv[i] += char;
-          });
+          conv.forEach(result => conv2.push(result + char));
         } else {
           let options = [];
           if (char in t2s2) {
@@ -497,21 +492,16 @@
             if (char in specialChars) {
               options = [special(char, splitted.slice(0, index), splitted.slice(index + 1))];
             }
+          }else {
+            options = [char];
           }
-          let conv2 = [];
-          conv.forEach(prefix => {
-            options.forEach(option => {
-              conv2.push(prefix + option);
-            });
+          options = options.map(opt => opt != undefined ? opt.split(" ")[0] : char);
+
+          conv.forEach(result => {
+            options.forEach(option => conv2.push(result + option));
           });
-          if (conv2.length == 0) {
-            conv.forEach((word, i) => {
-              conv[i] += char;
-            });
-          } else {
-            conv = conv2;
-          }
         }
+        conv = conv2.length > 0 ? conv2 : conv.map(r => r + char);
       });
       return conv.join(" / ");
     }
@@ -684,7 +674,7 @@
     }
 
     function handleAudioSeek(event) {
-      if (!state.moveableAudio || !state.isAudioPlaying || state.isPaused || state.isAnswerPhase) return;
+      if (!state.moveableAudio) return;
       const progressBar = event.currentTarget;
       const rect = progressBar.getBoundingClientRect();
       const clickX = event.clientX - rect.left;
@@ -693,6 +683,10 @@
       state.audio.currentTime = seekTime;
       state.audioProgress = seekTime;
       render();
+      if(!state.isAudioPlaying) {
+        state.isAudioPlaying = true;
+        state.audio.play();
+      }
     }
 
     function goToPrevious() {
@@ -1111,7 +1105,14 @@
       if (state.isAudioPlaying && state.currentAudioFile) {
         html += `
           <p>Playing Audio: ${state.currentAudioFile}</p>
-          <div class="progress-bar" ${state.moveableAudio && !state.isPaused && !state.isAnswerPhase ? 'onclick="handleAudioSeek(event)"' : ""}>
+          <div class="progress-bar" ${state.moveableAudio ? 'onclick="handleAudioSeek(event)"' : ""}>
+            <div class="progress-fill" style="width: ${(state.audioProgress / (state.audio?.duration || 1)) * 100}%"></div>
+          </div>
+        `;
+      } else if(state.moveableAudio && !state.isAudioPlaying && state.currentAudioFile) {
+        html += `
+          <p>Current Audio: ${state.currentAudioFile}</p>
+          <div class="progress-bar" ${state.moveableAudio ? 'onclick="handleAudioSeek(event)"' : ""}>
             <div class="progress-fill" style="width: ${(state.audioProgress / (state.audio?.duration || 1)) * 100}%"></div>
           </div>
         `;
@@ -1366,7 +1367,14 @@
       if (state.useCAT) {
         selectNextCATQuestion();
       } else {
-        selectNextRegularQuestion();
+        state.showProceedButton = false;
+        state.questions = state.isSimplified ? state.questionsSimplified : state.questionsTraditionalized;
+        state.questionOptions = state.randomizeOptions
+          ? shuffleArray(state.questions[0].options[0] || defaultOptions)
+          : state.questions[0].options[0] || defaultOptions;
+        if(!state.loadFromHistory) saveTestHistory();
+        playNextAudio(state.questions[0], 0);
+        render();
       }
       if (!state.loadFromHistory) saveTestHistory();
       render();
@@ -1408,19 +1416,16 @@
         return;
       }
 
-      const question = state.questions[state.currentQuestionIndex];
-
       state.currentQuestionIndex++;
       state.currentSubQuestionIndex = 0;
       state.currentSubQuestionAudioIndex = 1;
       state.questionOptions = state.randomizeOptions
-        ? shuffleArray(question.options[0] || defaultOptions)
-        : question.options[0] || defaultOptions;
+        ? shuffleArray(state.questions[state.currentQuestionIndex].options[0] || defaultOptions)
+        : state.questions[state.currentQuestionIndex].options[0] || defaultOptions;
       state.selectedAnswer = null;
       state.isAnswerPhase = false;
       state.audioProgress = 0;
-
-      playNextAudio(question, 0);
+      playNextAudio(state.questions[state.currentQuestionIndex], 0);
     }
 
     function playNextAudio(question, audioIndex) {
@@ -1464,10 +1469,12 @@
           playNextAudio(question, audioIndex + 1);
         } else {
           state.isAudioPlaying = false;
-          state.isAnswerPhase = true;
-          if (!state.noWaitingTime) {
-            state.answerTimer = 30;
-            startAnswerTimer();
+          if(!state.moveableAudio) {
+            state.isAnswerPhase = true;
+            if (!state.noWaitingTime) {
+              state.answerTimer = 30;
+              startAnswerTimer();
+            }
           }
         }
         render();
