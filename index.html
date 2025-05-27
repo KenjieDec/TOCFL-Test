@@ -682,11 +682,23 @@
       const seekTime = (clickX / width) * state.audio.duration;
       state.audio.currentTime = seekTime;
       state.audioProgress = seekTime;
-      render();
       if(!state.isAudioPlaying) {
         state.isAudioPlaying = true;
-        state.audio.play();
+        state.audio.play().catch(() => {
+          const audioIndex = state.currentSubQuestionAudioIndex;
+          const audioFile = question.audioFiles[audioIndex];
+          const mp3File = state.mp3Files.find(file => file.name == `${audioFile}.mp3`);
+          const audioUrl = URL.createObjectURL(mp3File);
+          const newAudio = new Audio(audioUrl);
+          
+          newAudio.play().catch(error => {
+            console.error(`Can't play ${audioFile}:`, error);
+            URL.revokeObjectURL(audioUrl);
+            state.isAudioPlaying = false;
+          });
+        });
       }
+      render();
     }
 
     function goToPrevious() {
@@ -1463,9 +1475,8 @@
       };
 
       newAudio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
+        if(!state.moveableAudio) URL.revokeObjectURL(audioUrl);
         if (audioIndex < question.audioFiles.length - 1) {
-          state.currentSubQuestionAudioIndex++;
           playNextAudio(question, audioIndex + 1);
         } else {
           state.isAudioPlaying = false;
