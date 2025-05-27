@@ -689,6 +689,9 @@
           const audioUrl = URL.createObjectURL(mp3File);
           const newAudio = new Audio(audioUrl);
           
+          state.audio = newAudio;
+          state.audio.currentTime = seekTime;
+          state.audioProgress = seekTime;
           newAudio.play().catch(error => {
             console.error(`Can't play ${audioFile}:`, error);
             URL.revokeObjectURL(audioUrl);
@@ -1474,7 +1477,7 @@
 
       newAudio.onended = () => {
         if(!state.moveableAudio) URL.revokeObjectURL(audioUrl);
-        if (audioIndex < question.audioFiles.length - 1) {
+        if (audioIndex < 1 && question.audioFiles.length > audioIndex) {
           playNextAudio(question, audioIndex + 1);
         } else {
           state.isAudioPlaying = false;
